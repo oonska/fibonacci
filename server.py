@@ -61,6 +61,14 @@ class Server(object):
             process.start()
             self.logger.debug("process spawned: %r", process)
 
+    def stop(self):
+        for process in multiprocessing.active_children():
+            self.logger.info("process terminating: %r", process)
+            process.terminate()
+            process.join()
+        self.logger.debug("closing socket")
+        self.sock.close()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--address", dest="address", type=str, default="127.0.0.1")
@@ -77,7 +85,4 @@ if __name__ == "__main__":
         logging.exception(e)
     finally:
         logging.info("shutting down")
-        for process in multiprocessing.active_children():
-            logging.info("process terminating: %r", process)
-            process.terminate()
-            process.join()
+        server.stop()
