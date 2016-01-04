@@ -80,9 +80,11 @@ if __name__ == "__main__":
     try:
         logging.info("starting up")
         server.start()
+    except KeyboardInterrupt:
+        logging.info("signal recieved")
     except Exception as e:
-        logging.exception("unexpected exception")
-        logging.exception(e)
+        logging.error("unexpected exception")
+        logging.error(e)
     finally:
         logging.info("shutting down")
         server.stop()
