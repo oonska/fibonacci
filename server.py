@@ -6,6 +6,15 @@ import logging
 import messages
 
 
+def fib(n):
+    if n == 0:
+        return 0
+    elif n == 1:
+        return 1
+    else:
+        return fib(n-1) + fib(n-2)
+
+
 def handle(connection, address):
     logger = logging.getLogger("process-%r" % (address,))
     try:
@@ -18,6 +27,8 @@ def handle(connection, address):
             logger.debug("request recieved: %r", request)
             request = messages.fib_request.unpack(request)[0]
             logger.debug("request unpacked: %r", request)
+            response = fib(request)
+            logger.debug("response generated: %r", response)
             response = messages.fib_response.pack(200, response)
             connection.sendall(response)
             logger.debug("response sent: %r", response)
