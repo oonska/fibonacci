@@ -2,8 +2,8 @@
 import argparse
 import multiprocessing
 import socket
-import struct
 import logging
+import messages
 
 
 def handle(connection, address):
@@ -11,16 +11,21 @@ def handle(connection, address):
     try:
         logger.debug("connected %r at %r", connection, address)
         while True:
-            data = connection.recv(1024)
-            if data == "":
+            request = connection.recv(1024)
+            if request == "":
                 logger.debug("socket closed remotely")
                 break
-            logger.debug("data recieved: %r", data)
-            connection.sendall(data)
-            logger.debug("data sent: %r", data)
+            logger.debug("request recieved: %r", request)
+            request = messages.fib_request.unpack(request)[0]
+            logger.debug("request unpacked: %r", request)
+            response = messages.fib_response.pack(200, response)
+            connection.sendall(response)
+            logger.debug("response sent: %r", response)
     except Exception as e:
         logger.exception("unexpected exception")
         logger.exception(e)
+        response = messages.fib_response.pack(400, 0)
+        connection.sendall(response)
     finally:
         logger.debug("socket closing")
         connection.close()
